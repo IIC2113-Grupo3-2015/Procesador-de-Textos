@@ -1,6 +1,9 @@
 import ProcesadorTexto
+import Sentiment as sent
 
-class AnalisisSentimiento(ProcesadorTexto):
+class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
+
+    d = sent.parseDictionary()
 
     def Analyze(self, str):
         """
@@ -10,7 +13,21 @@ class AnalisisSentimiento(ProcesadorTexto):
         algun candidato del proceso constituyente
         PostCondiciones: Se entregue un sentimiento definido del tweet con su factor correspondiente.
         """
-        return str
+        #TODO: ver negacion
+        tokens = sent.getTokens(str, self.d[0], self.d[1])
+        nPos = self.getPosNeg(tokens)[0]
+        nNeg = self.getPosNeg(tokens)[1]
+        print (nPos)
+        print (nNeg)
+
+        if nPos + nNeg > 0:
+            prop = max([nPos/(nPos + nNeg), nNeg/(nPos + nNeg)])
+        else:
+            prop = 0
+        if nPos < nNeg:
+            prop *= -1
+
+        return prop
 
     def getDB(self):
         """
@@ -30,3 +47,9 @@ class AnalisisSentimiento(ProcesadorTexto):
         :
         """
         return 0
+
+    def getPosNeg(self, tokens):
+        #Retorna tupla con cantidad de (Posemo,Negemo)
+        return [tokens.count("Posemo"), tokens.count("Negemo")]
+
+print (AnalisisSentimiento().Analyze("Solo Bachelet se supera a ella misma. Llamó a Scioli para felicitarlo por el triunfo. Estaría ebria?"))
