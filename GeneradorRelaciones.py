@@ -7,12 +7,13 @@
 import ProcesadorTexto, psycopg2
 import nltk, unicodedata
 from nltk.tree import ParentedTree as Tree
+from pymongo import MongoClient
 
 try:
     conn = psycopg2.connect("dbname='mydb' user='postgres' host='localhost' password='1234'")
     cur = conn.cursor()
 except:
-    print "Error de conexion"
+    print ("Error de conexion")
 
 candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
 
@@ -96,7 +97,13 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
          formato correcto
         PostCondiciones: Obtener la noticia sin errores:
         """
-        return 0
+        client = MongoClient()
+        db = client['noticias']
+        doc = db.noticias.find()
+        noticias = []
+        for document in doc:
+           noticias.append(document['noticia'])
+        return noticias
 
     def saveDB(self, candidatos, entidades):
         """
@@ -125,21 +132,16 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         return 0
 
 
-texto = u"""hola ñññ áéíóú yo soy Diego Steinsapir. Su buen amigo.
-                A Jorge Gonzalez le gusta andár en bicicleta. Soquimich dejó la escoba.
-                Alberto Hinrichsen es un pajarón. El ladrón Roberto Sanchez. Falabella es una buena empresa.
-                Él es un buen hombre. Cristiano Ronaldo juega Futbol. El Tubo es un piante.
-                Juan Perez es mi amigo. El reloj se llama Casio Watch. Mi computador es Windows.
-                Yo soy Daniel Alvarez y mi hermano es Cristian Alvarez. La presidente Michelle Bachelet. Un amigo de Cristobal Jimenez"""
-
 g = GeneradorRelaciones()
 
-noticia = g.quitarAcentos(texto) #Para cuando reciba noticia de DB
+noticias = g.getDB()
+for noticia in noticias:
+    noticia = g.quitarAcentos(noticia) #Para cuando reciba noticia de DB
 
-arbol = g.parts_of_speech(noticia)
-entidades = g.find_entities(arbol)
-a = g.Analyze(entidades)
-g.saveDB(a[0], a[1])
+    arbol = g.parts_of_speech(noticia)
+    entidades = g.find_entities(arbol)
+    a = g.Analyze(entidades)
+    g.saveDB(a[0], a[1])
 
 ''' ------------------------------ Metodo 2 ------------------------------
 tokenized = tokenizer.tokenize(noticia) 
