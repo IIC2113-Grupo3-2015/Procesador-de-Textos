@@ -1,13 +1,12 @@
-import ProcesadorTexto
+import ProcesadorTexto, psycopg2
 import Sentiment as senti
+from pymongo import MongoClient
 
 class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
 
     d = senti.parseDictionary()
-    #TODO: definir método para verificar cuales tweets son nuevos
-    last_analyzed_tweet = None
 
-    def Analyze(self, tweet, idCandidato, idTweet):
+    def Analyze(self, tweet, candidato, idTweet):
         """
         Descripcion: De los tweets recolectados, este metodo se encarga de identificar palabras clave
         para su analisis de sentimiento
@@ -20,7 +19,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #TODO: ver negacion
 
         #Tablas que hay que tener en Postgres:
-        #   (1) Top3 tweets por candidato, por emocion (1 tabla en total, con campo idTweet, idCandidato, emocion y tagCount)
+        #   (1) Top3 tweets por candidato, por emocion (1 tabla en total, con campo idTweet (debe ser bigint!!), idCandidato, emocion y tagCount)
         #   (2) Count de tweets analizados por candidato(1 tabla en total, con campos idCandidato y count)
         #   (3) Promedio de tagCount por emocion, por candidato (1 tabla en total, con campos idCandidato, emocion y promedio)
 
@@ -75,8 +74,12 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         correcto
         PostCondiciones: Obtener el tweet sin errores
         """
-        #Se debe chequear con 
-        return 0
+        client = MongoClient()
+        db = client['tweets']
+        doc = db.tweets.find_one({ "analyzed": { "$exists": False }})
+
+        #Retorna None si no hay tweets no analizados.
+        return doc
 
     def saveDB(self, string_list):
         """
@@ -86,6 +89,22 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         PostCondiciones: Datos guardados correctamente en Base de Datos.
         :
         """
+
+        #TODO: Agregar campo "analyzed" a tweet analizado.
         return 0
 
 #print (AnalisisSentimiento().Analyze("Solo Bachelet se supera a ella misma. Llamó a Scioli para felicitarlo por el triunfo. Estaría ebria?"))
+
+'''
+client = MongoClient()
+db = client['tweets']
+result = db.tweets.insert_one(
+    {
+        "candidato": "Felipe Kast2",
+        "tweet": "2) Pocas cosas le hacen más daño a la causa de quienes creemos en la libre competencia y el emprendimiento que la colusión",
+        "_id": 321
+    })
+print (result.inserted_id)
+AnalisisSentimiento().getDB()
+'''
+        
