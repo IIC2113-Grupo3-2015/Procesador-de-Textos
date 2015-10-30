@@ -52,4 +52,4 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Retorna tupla con cantidad de (Posemo,Negemo)
         return [tokens.count("Posemo"), tokens.count("Negemo")]
 
-print (AnalisisSentimiento().Analyze("Solo Bachelet se supera a ella misma. Llamó a Scioli para felicitarlo por el triunfo. Estaría ebria?"))
+print (AnalisisSentimiento().Analyze("Solo Bachelet se supera a ella misma. Llamo a Scioli para felicitarlo por el triunfo. Estaria ebria?"))
