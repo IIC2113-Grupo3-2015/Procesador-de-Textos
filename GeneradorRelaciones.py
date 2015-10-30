@@ -4,15 +4,23 @@
     # http://www.nltk.org/book/ch07.html
     # https://www.youtube.com/watch?v=FLZvOKSCkxY&list=PLQVvvaa0QuDf2JswnfiGkliBInZnIC4HL
 
-import ProcesadorTexto
+import ProcesadorTexto, psycopg2
 import nltk, unicodedata
 from nltk.tree import ParentedTree as Tree
+
+try:
+    conn = psycopg2.connect("dbname='mydb' user='postgres' host='localhost' password='1234'")
+    cur = conn.cursor()
+except:
+    print "Error de conexion"
+
+candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
 
 class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
     #tokenizer = nltk.data.load("tokenizers/punkt/spanish.pickle")  Revisar para mejorar analisis español
 
-    def Analyze(self, str):
+    def Analyze(self, entidades):
         """
         Descripcion:De las noticias, este metodo se encarga de hacer relaciones entre candidatos y eventos importantes
         (EJ: Juan Perez involucrado en SQM)
@@ -28,7 +36,13 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
                 entidades.remove(enti)
         # Relacionar candidatos con NE's
         """
-        return str
+        # Primero relacionar entre candidatos
+        candidatosEncontrados = []
+        for enti in entidades:  
+            if enti in candidatos:
+                candidatosEncontrados.append(enti)
+                entidades.remove(enti)
+        return [candidatos, entidades]
 
     def quitarAcentos(self, s):
         #Also removes tilde (~) from ñ
@@ -84,7 +98,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         """
         return 0
 
-    def saveDB(self, string_list):
+    def saveDB(self, candidatos, entidades):
         """
         Descripcion: Guardar las relaciones analizadas en la base de datos.
         PreCondiciones: Resultado de analisis en formato correcto y listo. Formato para guardar en base de datos
@@ -92,25 +106,40 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         PostCondiciones: Datos guardados correctamente en Base de Datos.
         :
         """
+        #cur.execute("INSERT INTO relaciones_candidatos VALUES (%s,%s);",['Prueba2', 'Hola2'])
+        #Relacionar cada candidato con los demas
+        for candidato1 in candidatos:
+            for candidato2 in candidatos:
+                if candidato1 != candidato2:
+                    c = 1+1
+                    #print (candidato1, candidato2)
+                    cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s');""" %(candidato1, candidato2))
+
+        #Relacionar cada candidato con las entidades
+        for candidato in candidatos:
+            for entidad in entidades:
+                b = 1+1
+                #print(candidato, entidad)
+                cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s');""" %(candidato, entidad))
+        conn.commit()
         return 0
 
 
 texto = u"""hola ñññ áéíóú yo soy Diego Steinsapir. Su buen amigo.
-                A Steinsapir le gusta andár en bicicleta. Soquimich dejó la cagada.
-                Alberto es un pajarón. El ladrón Roberto. Coca-Cola es una buena empresa.
+                A Jorge Gonzalez le gusta andár en bicicleta. Soquimich dejó la escoba.
+                Alberto Hinrichsen es un pajarón. El ladrón Roberto Sanchez. Falabella es una buena empresa.
                 Él es un buen hombre. Cristiano Ronaldo juega Futbol. El Tubo es un piante.
-                Juan de Dios es mi amigo. El reloj se llama Casio Watch. Mi computador es Windows.
-                Yo soy Daniel y mi hermano es Cristian. La presidente Bachelet. Un amigo de Cristobal"""
+                Juan Perez es mi amigo. El reloj se llama Casio Watch. Mi computador es Windows.
+                Yo soy Daniel Alvarez y mi hermano es Cristian Alvarez. La presidente Michelle Bachelet. Un amigo de Cristobal Jimenez"""
 
 g = GeneradorRelaciones()
 
 noticia = g.quitarAcentos(texto) #Para cuando reciba noticia de DB
 
-
-print(noticia)
 arbol = g.parts_of_speech(noticia)
-print (g.find_entities(arbol)) #Primero de lista de NE's    
-
+entidades = g.find_entities(arbol)
+a = g.Analyze(entidades)
+g.saveDB(a[0], a[1])
 
 ''' ------------------------------ Metodo 2 ------------------------------
 tokenized = tokenizer.tokenize(noticia) 
@@ -127,3 +156,4 @@ for token in tokenized:
     #print(""+ne)
     -------------------------------------------------------------------
 '''
+#TODO: algunos nombres no se agarran en el analyzer (¿?)
