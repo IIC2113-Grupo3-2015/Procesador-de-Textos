@@ -6,6 +6,7 @@
 
 import ProcesadorTexto, psycopg2
 import nltk, unicodedata
+import unittest
 from nltk.tree import ParentedTree as Tree
 from pymongo import MongoClient
 
@@ -21,7 +22,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
     #tokenizer = nltk.data.load("tokenizers/punkt/spanish.pickle")  Revisar para mejorar analisis español
 
-    def Analyze(self, entidades):
+    def Analyse(self, entidades):
         """
         Descripcion:De las noticias, este metodo se encarga de hacer relaciones entre candidatos y eventos importantes
         (EJ: Juan Perez involucrado en SQM)
@@ -43,7 +44,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
             if enti in candidatos:
                 candidatosEncontrados.append(enti)
                 entidades.remove(enti)
-        return [candidatos, entidades]
+        return [candidatosEncontrados, entidades]
 
     def quitarAcentos(self, s):
         #Also removes tilde (~) from ñ
@@ -140,8 +141,24 @@ for noticia in noticias:
 
     arbol = g.parts_of_speech(noticia)
     entidades = g.find_entities(arbol)
-    a = g.Analyze(entidades)
-    g.saveDB(a[0], a[1])
+    a = g.Analyse(entidades)
+#    g.saveDB(a[0], a[1])
+
+# ------------------------------- TESTS UNITARIOS -----------------------------
+class TestMetodosPrincipales(unittest.TestCase):
+    def test_quitarAcentos(self):
+        self.assertEqual(g.quitarAcentos('áéíóúñ'),'aeioun')
+
+    def test_Analyse(self):
+        texto_prueba = "me llamo Cristobal Alvarez. Mi amigo es Vicente Rodriguez"
+        arbol_prueba = g.parts_of_speech(texto_prueba)
+        entidades_prueba = g.find_entities(arbol_prueba)
+        tuplas_prueba = g.Analyse(entidades_prueba)
+        self.assertEqual(tuplas_prueba[0], [])
+        self.assertEqual(tuplas_prueba[1],['Cristobal Alvarez', 'Vicente Rodriguez'])
+        
+unittest.main()
+
 
 ''' ------------------------------ Metodo 2 ------------------------------
 tokenized = tokenizer.tokenize(noticia) 
