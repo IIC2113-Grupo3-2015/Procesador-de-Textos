@@ -72,7 +72,7 @@
 
 a	10
 abajo	10	41	43
-abandona	12	16	19	20	39
+abandona*	12	16	19	20	39
 abandonáis	12	16	19	20	39
 abandonamos	12	16	19	20	38	39
 abandonan	12	16	19	20	39
@@ -7574,3 +7574,4 @@ chup*	16	66
 pico	16	66
 flaite	16
 felicitar*	13
+mal	16
