@@ -4755,7 +4755,7 @@ mientes	12	16	39
 miento	12	16	39
 mientras	37
 miércoles	37
-mierda*	12	16	66
+mierda*	12	16	18	66
 migraña*	60	61
 mil	11
 milagro*	57
@@ -7545,30 +7545,32 @@ zona*	41
 zorra*	12	16	18	66
 zumba*	07	12	13
 zumbido*	60	61
-hueón*	16
-weón*	16
-wn*	16
-aweona*	16
-hdp	16
-ctm	16
-csm	16
-conchetuma*	16
-conchatuma*	16
-conchesuma*	16
-conchasuma*	16
-chetuma*	16
-culia*	16
-ql*	16
+hueón*	66
+weón*	66
+wn*	66
+aweona*	16	18	66
+hdp	16	18	66
+ctm	16	18	66
+csm	16	18	66
+conchetuma*	16	18	66
+conchatuma*	16	18	66
+conchesuma*	16	18	66
+conchasuma*	16	18	66
+chetuma*	16	18	66
+culia*	16	18	66
+ql*	16	18	66
 bacán	13
 bakán	13
 bkn	13
-carerraja	16
-perra	16
+carerraja	16	18	66
+caraerraja	16	18	66
+perra	16	18	66
 paja	16
-pajer*	16
-puto	16
-ladrón*	16
-chup*	16
-pico	16
+pajer*	16	66
+puto	16	66
+ladrón*	16	18
+ladron*	16	18
+chup*	16	66
+pico	16	66
 flaite	16
 felicitar*	13
