@@ -99,11 +99,15 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         PostCondiciones: Obtener la noticia sin errores:
         """
         client = MongoClient()
-        db = client['noticias']
-        doc = db.noticias.find()
+        db = client['scrapper']
         noticias = []
-        for document in doc:
-           noticias.append(document['noticia'])
+        doc1 = db.EmolModule.find()
+        for document in doc1:
+           noticias.append(document['data'])
+        doc2 = db.LaTerceraModule.find()
+        for document in doc2:
+        	noticias.append(document['data'])
+        print(noticias)
         return noticias
 
     def saveDB(self, candidatos, entidades):
@@ -142,7 +146,7 @@ for noticia in noticias:
     arbol = g.parts_of_speech(noticia)
     entidades = g.find_entities(arbol)
     a = g.Analyse(entidades)
-#    g.saveDB(a[0], a[1])
+    g.saveDB(a[0], a[1])
 
 # ------------------------------- TESTS UNITARIOS -----------------------------
 class TestMetodosPrincipales(unittest.TestCase):
