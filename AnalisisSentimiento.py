@@ -9,6 +9,17 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
     candidato = ""
     id_tweet = 0
 
+    mon_host = 'localhost'
+    mon_port = 27017
+    mon_db = 'scrapper'
+    mon_coll = 'TweetModule'
+
+    pos_host = 'localhost'
+    pos_port = 5432
+    pos_db = 'scrapper'
+    pos_user = 'scrapper'
+    pos_pass = ''
+
     def update_tops(self, cur, tags, tags_count):
         #Supuesto: en esta tabla siempre se mantienen, a lo más, 3 tweets por emocion, por candidato.
         #tops3s guarda una lista de listas de tuplas (idtweet, tagcount)
@@ -81,7 +92,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
 
         #Abrir conexión con psql
         try:
-            conn = psycopg2.connect("dbname=postgres user=postgres password=genoadmin")
+            conn = psycopg2.connect(database=self.pos_db, user=self.pos_user, password=self.pos_pass, host=self.pos_host, port=self.pos_port)
             cur = conn.cursor()
         except:
             return False
@@ -122,15 +133,16 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         Campo analyzed agregado en saveDB. 
         '''
 
-        client = MongoClient()
-        db = client['tweets']
-        doc = db.tweets.find_one({ "analyzed": { "$exists": False }})
+        client = MongoClient(self.mon_host, self.mon_port)
+        db = client[self.mon_db]
+        doc = db[self.mon_coll].find_one({ "analyzed": { "$exists": False }})
         if doc is not None:
             self.id_tweet = doc['_id']
             self.candidato = doc['candidato']
             return doc['tweet']
 
-        else: return None
+        else:
+            return None
 
     def saveDB(self, string_list):
         """
@@ -143,9 +155,9 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Actualiza doc en mongo con campo analyzed, para no analizar de nuevo.
 
         #string list deberia tener solo un elemento: el id del tweet (pero DEBE ser una lista)
-        client = MongoClient()
-        db = client['tweets']
-        db.tweets.update_one({ "_id": string_list[0]}, {"$set": {"analyzed":""}})
+        client = MongoClient(self.mon_host, self.mon_port)
+        db = client[self.mon_db]
+        db[self.mon_coll].update_one({ "_id": string_list[0]}, {"$set": {"analyzed":""}})
 
 
 # ------------------------------- TESTS UNITARIOS -----------------------------
@@ -174,9 +186,22 @@ class TestMetodoPrincipal(unittest.TestCase):
         #La palabra "hueón" y sus derivados son tan comunes y ambivalentes en sentido en el lenguaje coloquial, que solo lo dejé como Swear.
         tokens = senti.getTokens("Tendrá cara de hueón, pero igual es sensato", an.d[0], an.d[1])
         self.assertEqual(an.count_tags(tokens, tags),[1,0,0,0,1])
+# --------------------------------------------------------------------------------
+
         
 if __name__ == '__main__':
-    unittest.main()
+    #unittest.main()
+    an = AnalisisSentimiento()
+    while True:
+        tw = an.getDB()
+        while tw is not None:
+            an.Analyze(tw)
+            aux = []
+            aux.append(id_tweet)
+            an.saveDB(aux)
+            tw = an.getDB()
+
+
 
 
 
