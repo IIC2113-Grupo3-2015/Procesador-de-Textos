@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import ProcesadorTexto, psycopg2, unittest
 import Sentiment as senti
 from pymongo import MongoClient
