@@ -10,8 +10,18 @@ import unittest
 from nltk.tree import ParentedTree as Tree
 from pymongo import MongoClient
 
+mon_host = 'localhost'
+mon_port = 27017
+mon_db = 'scrapper'
+
+pos_host = 'localhost'
+pos_port = 5432
+pos_db = 'scrapper'
+pos_user = 'scrapper'
+pos_pass = ''
+
 try:
-    conn = psycopg2.connect("dbname='mydb' user='postgres' host='localhost' password='1234'")
+    conn = psycopg2.connect(database=self.pos_db, user=self.pos_user, password=self.pos_pass, host=self.pos_host, port=self.pos_port)
     cur = conn.cursor()
 except:
     print ("Error de conexion")
@@ -98,8 +108,8 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
          formato correcto
         PostCondiciones: Obtener la noticia sin errores:
         """
-        client = MongoClient()
-        db = client['scrapper']
+        client = MongoClient(mon_host, mon_port)
+        db = client[mon_db]
         noticias = []
         doc1 = db.EmolModule.find()
         for document in doc1:
