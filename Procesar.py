@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import AnalisisSentimiento, GeneradorRelaciones
 
-g = GeneradorRelaciones()
-an = AnalisisSentimiento()
+g = GeneradorRelaciones.GeneradorRelaciones()
+an = AnalisisSentimiento.AnalisisSentimiento()
 noticias = g.getDB()
 
 while True:
