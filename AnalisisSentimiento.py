@@ -104,11 +104,11 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Contar las ocurrencias de los tags en el tweet.
         tags = ["Posemo", "Negemo", "Anger", "Sad", "Swear"]
         tokens = senti.getTokens(str, self.d[0], self.d[1])
-        tags_count = count_tags(tokens, tags)
+        tags_count = self.count_tags(tokens, tags)
 
         #Modificar, si es necesario, la base de datos.
-        update_tops(cur, tags, tags_count)
-        update_proms(cur, tags, tags_count)
+        self.update_tops(cur, tags, tags_count)
+        self.update_proms(cur, tags, tags_count)
 
         #Commitear los cambios y cerrar conexión
         conn.commit()
