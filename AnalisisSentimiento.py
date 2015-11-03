@@ -139,7 +139,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         db = client[self.mon_db]
         doc = db[self.mon_coll].find_one({ "analyzed": { "$exists": False }})
         if doc is not None:
-            self.id_tweet = doc['_id']
+            self.id_tweet = doc['id']
             self.candidato = doc['candidato']
             return doc['tweet'].encode("ascii", errors="ignore").decode("ascii", errors="ignore")
 
@@ -159,7 +159,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #string list deberia tener solo un elemento: el id del tweet (pero DEBE ser una lista)
         client = MongoClient(self.mon_host, self.mon_port)
         db = client[self.mon_db]
-        db[self.mon_coll].update_one({ "_id": string_list[0]}, {"$set": {"analyzed":""}})
+        db[self.mon_coll].update_one({ "id": string_list[0]}, {"$set": {"analyzed":""}})
 
 
 # ------------------------------- TESTS UNITARIOS -----------------------------
