@@ -172,7 +172,7 @@ class TestMetodosPrincipales(unittest.TestCase):
         self.assertEqual(tuplas_prueba[0], [])
         self.assertEqual(tuplas_prueba[1],['Cristobal Alvarez', 'Vicente Rodriguez'])
         
-unittest.main()
+#unittest.main()
 
 
 ''' ------------------------------ Metodo 2 ------------------------------
