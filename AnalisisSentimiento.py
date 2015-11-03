@@ -20,7 +20,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
     pos_port = 5432
     pos_db = 'scrapper'
     pos_user = 'scrapper'
-    pos_pass = ''
+    pos_pass = 'scrapper'
 
     def update_tops(self, cur, tags, tags_count):
         #Supuesto: en esta tabla siempre se mantienen, a lo más, 3 tweets por emocion, por candidato.

@@ -18,10 +18,10 @@ pos_host = 'localhost'
 pos_port = 5432
 pos_db = 'scrapper'
 pos_user = 'scrapper'
-pos_pass = ''
+pos_pass = 'scrapper'
 
 try:
-    conn = psycopg2.connect(database=self.pos_db, user=self.pos_user, password=self.pos_pass, host=self.pos_host, port=self.pos_port)
+    conn = psycopg2.connect(database=pos_db, user=pos_user, password=pos_pass, host=pos_host, port=pos_port)
     cur = conn.cursor()
 except:
     print ("Error de conexion")
