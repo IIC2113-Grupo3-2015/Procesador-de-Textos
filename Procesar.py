@@ -11,6 +11,7 @@ while True:
 
 	#------------TWITTER------------
     tw = an.getDB()
+    print (tw)
     if tw is not None:
         an.Analyze(tw)
         aux = []
