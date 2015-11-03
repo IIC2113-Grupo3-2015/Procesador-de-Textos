@@ -14,7 +14,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
     mon_host = 'localhost'
     mon_port = 27017
     mon_db = 'scrapper'
-    mon_coll = 'TweetModule'
+    mon_coll = 'TwitterModule'
 
     pos_host = 'localhost'
     pos_port = 5432
