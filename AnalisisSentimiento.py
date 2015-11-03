@@ -191,15 +191,7 @@ class TestMetodoPrincipal(unittest.TestCase):
         
 if __name__ == '__main__':
     #unittest.main()
-    an = AnalisisSentimiento()
-    while True:
-        tw = an.getDB()
-        while tw is not None:
-            an.Analyze(tw)
-            aux = []
-            aux.append(id_tweet)
-            an.saveDB(aux)
-            tw = an.getDB()
+    pass
 
 
 

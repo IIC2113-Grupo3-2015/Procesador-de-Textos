@@ -103,10 +103,10 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         noticias = []
         doc1 = db.EmolModule.find()
         for document in doc1:
-           noticias.append(document['data'])
+           noticias.append(document['data'].encode("utf-8"))
         doc2 = db.LaTerceraModule.find()
         for document in doc2:
-        	noticias.append(document['data'])
+        	noticias.append(document['data'].encode("utf-8"))
         print(noticias)
         return noticias
 
@@ -136,7 +136,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         conn.commit()
         return 0
 
-
+'''
 g = GeneradorRelaciones()
 
 noticias = g.getDB()
@@ -147,6 +147,7 @@ for noticia in noticias:
     entidades = g.find_entities(arbol)
     a = g.Analyse(entidades)
     g.saveDB(a[0], a[1])
+'''
 
 # ------------------------------- TESTS UNITARIOS -----------------------------
 class TestMetodosPrincipales(unittest.TestCase):
