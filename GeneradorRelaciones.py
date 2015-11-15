@@ -113,10 +113,10 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         noticias = []
         doc1 = db.EmolModule.find()
         for document in doc1:
-           noticias.append(document['data'].encode("ascii", errors="ignore").decode("ascii", errors="ignore"))
+           noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         doc2 = db.LaTerceraModule.find()
         for document in doc2:
-        	noticias.append(document['data'].encode("ascii", errors="ignore").decode("ascii", errors="ignore"))
+        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         print(noticias)
         return noticias
 
