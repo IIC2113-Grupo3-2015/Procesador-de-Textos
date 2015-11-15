@@ -141,7 +141,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         if doc is not None:
             self.id_tweet = doc['id']
             self.candidato = doc['candidato']
-            return doc['tweet'].encode("ascii", errors="ignore").decode("ascii", errors="ignore")
+            return doc['tweet'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")
 
         else:
             return None
