@@ -10,6 +10,8 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
     #Se actualizan al usar getDB
     candidato = ""
     id_tweet = 0
+    link = ""
+    autor = ""
 
     mon_host = 'localhost'
     mon_port = 27017
@@ -38,7 +40,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Aqui se guarda el tweet en los top3, si corresponde
         for i in range(0,5):
             if mins[i][1] < tags_count[i]:
-                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i]])
+                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i], autor, link])
                 #La llave de esta tabla deberia ser id_tweet y emocion
                 cur.execute("DELETE FROM tops WHERE idtweet = %s AND emocion = %s;", [mins[i][0], tags[i]])
 
@@ -130,6 +132,8 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         "candidato": "Felipe Kast3",
         "tweet": "2) Pocas cosas le hacen más daño a la causa de quienes creemos en la libre competencia y el emprendimiento que la colusión",
         "_id": 213,
+        "link": ""
+        "autor": ""
         "analyzed": ""
         }
         Campo analyzed agregado en saveDB. 
@@ -141,6 +145,8 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         if doc is not None:
             self.id_tweet = doc['id']
             self.candidato = doc['candidato']
+            self.autor = doc['autor']
+            self.link = doc['link']
             return doc['tweet'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")
 
         else:
