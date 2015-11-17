@@ -10,13 +10,23 @@ import unittest
 from nltk.tree import ParentedTree as Tree
 from pymongo import MongoClient
 
+mon_host = 'localhost'
+mon_port = 27017
+mon_db = 'scrapper'
+
+pos_host = 'localhost'
+pos_port = 5432
+pos_db = 'scrapper'
+pos_user = 'scrapper'
+pos_pass = 'scrapper'
+
 try:
-    conn = psycopg2.connect("dbname='mydb' user='postgres' host='localhost' password='1234'")
+    conn = psycopg2.connect(database=pos_db, user=pos_user, password=pos_pass, host=pos_host, port=pos_port)
     cur = conn.cursor()
 except:
     print ("Error de conexion")
 
-candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
+#candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
 
 class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
@@ -98,16 +108,25 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
          formato correcto
         PostCondiciones: Obtener la noticia sin errores:
         """
-        client = MongoClient()
-        db = client['scrapper']
+        client = MongoClient(mon_host, mon_port)
+        db = client[mon_db]
         noticias = []
-        doc1 = db.EmolModule.find()
+        doc1 = db.EmolModule.find({ "analyzed": { "$exists": False }})
         for document in doc1:
-           noticias.append(document['data'])
-        doc2 = db.LaTerceraModule.find()
+        	db.EmolModule.update({"id":document['id']}, {"$set":{"analyzed":""}})		#OJO CON ID
+        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+        doc2 = db.LaTerceraModule.find({ "analyzed": { "$exists": False }})
         for document in doc2:
-        	noticias.append(document['data'])
-        print(noticias)
+        	db.LaTerceraModule.update({"id":document['id']}, {"$set":{"analyzed":""}})	#OJO CON ID
+        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+        #print(noticias)
+
+        #LA LUPA
+        doc3 = db.LaLupaModule.find({"analyzed": {"$exists": False}})
+        for document in doc2:
+            db.LaLupaModule.update({"id":document['id']}, {"$set":{"analyzed":""}})
+            #Guardar PSQL
+            cur.execute(""" INSERT INTO La_Lupa VALUES ('%s');""" %(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")))
         return noticias
 
     def saveDB(self, candidatos, entidades):
@@ -123,20 +142,20 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         for candidato1 in candidatos:
             for candidato2 in candidatos:
                 if candidato1 != candidato2:
-                    c = 1+1
+                    #c = 1+1
                     #print (candidato1, candidato2)
                     cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s');""" %(candidato1, candidato2))
 
         #Relacionar cada candidato con las entidades
         for candidato in candidatos:
             for entidad in entidades:
-                b = 1+1
+                #b = 1+1
                 #print(candidato, entidad)
                 cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s');""" %(candidato, entidad))
         conn.commit()
         return 0
 
-
+'''
 g = GeneradorRelaciones()
 
 noticias = g.getDB()
@@ -147,6 +166,7 @@ for noticia in noticias:
     entidades = g.find_entities(arbol)
     a = g.Analyse(entidades)
     g.saveDB(a[0], a[1])
+'''
 
 # ------------------------------- TESTS UNITARIOS -----------------------------
 class TestMetodosPrincipales(unittest.TestCase):
@@ -161,7 +181,7 @@ class TestMetodosPrincipales(unittest.TestCase):
         self.assertEqual(tuplas_prueba[0], [])
         self.assertEqual(tuplas_prueba[1],['Cristobal Alvarez', 'Vicente Rodriguez'])
         
-unittest.main()
+#unittest.main()
 
 
 ''' ------------------------------ Metodo 2 ------------------------------
