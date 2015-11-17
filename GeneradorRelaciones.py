@@ -26,7 +26,7 @@ try:
 except:
     print ("Error de conexion")
 
-#candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
+candidatos = ["Michelle Bachelet", "Rodrigo Valdes", "Sebastian Pinera"]
 
 class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
@@ -142,16 +142,22 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         for candidato1 in candidatos:
             for candidato2 in candidatos:
                 if candidato1 != candidato2:
-                    #c = 1+1
-                    #print (candidato1, candidato2)
-                    cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s');""" %(candidato1, candidato2))
+                    tupla = cur.execute(""" SELECT * FROM relaciones_candidatos WHERE "nombre" = '%s' AND "relacionado" = '%s';""" %(candidato1, candidato2))
+                    if tupla is not None:
+                   	 conteo = tupla[0].cantidad + 1
+                   	 cur.execute(""" UPDATE relaciones_candidatos SET '%s' WHERE "nombre" = '%s' AND "relacionado" = '%s';""" %(conteo, candidato1, candidato2))
+                   	else:
+                   	 cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s', 1);""" %(candidato1, candidato2))
 
         #Relacionar cada candidato con las entidades
         for candidato in candidatos:
             for entidad in entidades:
-                #b = 1+1
-                #print(candidato, entidad)
-                cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s');""" %(candidato, entidad))
+                tupla = cur.execute(""" SELECT * FROM candidatos_entidades WHERE "nombre" = '%s' AND "entidad" = '%s';""" %(candidato, entidad))
+                if tupla is not None:
+                	conteo = tupla[0].cantidad + 1
+                	cur.execute(""" UPDATE candidatos_entidades SET '%s' WHERE "nombre" = '%s' AND "entidad" = '%s';""" %(conteo, candidato, entidad))
+                else:
+                	cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s', 1);""" %(candidato, entidad))
         conn.commit()
         return 0
 
