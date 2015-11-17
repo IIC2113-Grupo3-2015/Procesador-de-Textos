@@ -111,12 +111,14 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         client = MongoClient(mon_host, mon_port)
         db = client[mon_db]
         noticias = []
-        doc1 = db.EmolModule.find()
+        doc1 = db.EmolModule.find({ "analyzed": { "$exists": False }})
         for document in doc1:
-           noticias.append(document['data'].encode("ascii", errors="ignore").decode("ascii", errors="ignore"))
-        doc2 = db.LaTerceraModule.find()
+        	db.EmolModule.update({"_id":document['_id']}, {"$set":{"analyzed":""}})		#OJO CON ID
+        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+        doc2 = db.LaTerceraModule.find({ "analyzed": { "$exists": False }})
         for document in doc2:
-        	noticias.append(document['data'].encode("ascii", errors="ignore").decode("ascii", errors="ignore"))
+        	db.LaTerceraModule.update({"_id":document['_id']}, {"$set":{"analyzed":""}})	#OJO CON ID
+        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         print(noticias)
         return noticias
 
