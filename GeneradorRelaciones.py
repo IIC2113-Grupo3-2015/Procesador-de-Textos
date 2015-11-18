@@ -26,7 +26,7 @@ try:
 except:
     print ("Error de conexion")
 
-candidatos = ["Diego Steinsapir", "Alberto Hinrichsen", "Roberto Sanchez", "Cristiano Ronaldo"]
+candidatos = ["Michelle Bachelet", "Rodrigo Valdes", "Sebastian Pinera"]
 
 class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
@@ -39,7 +39,6 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         PreCondiciones: Noticia a analizar en formato correcto. Que noticia tenga relacion con algun candidato del
         proceso constituyente
         PostCondiciones:Se entregue relacion entre candidatos y eventos de manera correcta
-
         # Primero relacionar entre candidatos
         candidatosEncontrados = []
         for enti in entidades:  #Revisar repeticiones y apellidos solos
@@ -113,13 +112,20 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         noticias = []
         doc1 = db.EmolModule.find({ "analyzed": { "$exists": False }})
         for document in doc1:
-        	db.EmolModule.update({"_id":document['_id']}, {"$set":{"analyzed":""}})		#OJO CON ID
-        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+            db.EmolModule.update({"id":document['id']}, {"$set":{"analyzed":""}})       #OJO CON ID
+            noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         doc2 = db.LaTerceraModule.find({ "analyzed": { "$exists": False }})
         for document in doc2:
-        	db.LaTerceraModule.update({"_id":document['_id']}, {"$set":{"analyzed":""}})	#OJO CON ID
-        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
-        print(noticias)
+            db.LaTerceraModule.update({"id":document['id']}, {"$set":{"analyzed":""}})  #OJO CON ID
+            noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+        #print(noticias)
+
+        #LA LUPA
+        doc3 = db.LaLupaModule.find({"analyzed": {"$exists": False}})
+        for document in doc2:
+            db.LaLupaModule.update({"id":document['id']}, {"$set":{"analyzed":""}})
+            #Guardar PSQL
+            cur.execute(""" INSERT INTO La_Lupa VALUES ('%s');""" %(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")))
         return noticias
 
     def saveDB(self, candidatos, entidades):
@@ -135,26 +141,30 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         for candidato1 in candidatos:
             for candidato2 in candidatos:
                 if candidato1 != candidato2:
-                    c = 1+1
-                    #print (candidato1, candidato2)
-                    cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s');""" %(candidato1, candidato2))
+                    cur.execute(""" SELECT * FROM relaciones_candidatos WHERE "nombre" LIKE '%s' AND "relacionado" LIKE '%s';""" %(candidato1, candidato2))
+                    tupla = cur.fetchall()
+                    if tupla:
+                        cur.execute(""" UPDATE relaciones_candidatos SET cantidad = cantidad + 1 WHERE "nombre" LIKE '%s' AND "relacionado" LIKE '%s';""" %(candidato1, candidato2))
+                    else:               
+                        cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s', 1);""" %(candidato1, candidato2))
 
         #Relacionar cada candidato con las entidades
         for candidato in candidatos:
             for entidad in entidades:
-                b = 1+1
-                #print(candidato, entidad)
-                cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s');""" %(candidato, entidad))
+                cur.execute(""" SELECT * FROM candidatos_entidades WHERE "nombre" LIKE '%s' AND "entidad" LIKE '%s';""" %(candidato, entidad))
+                tupla = cur.fetchall()
+                if tupla:
+                    cur.execute(""" UPDATE candidatos_entidades SET cantidad = cantidad + 1 WHERE "nombre" LIKE '%s' AND "entidad" LIKE '%s';""" %(candidato, entidad))
+                else:
+                    cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s', 1);""" %(candidato, entidad))
         conn.commit()
         return 0
 
 '''
 g = GeneradorRelaciones()
-
 noticias = g.getDB()
 for noticia in noticias:
     noticia = g.quitarAcentos(noticia) #Para cuando reciba noticia de DB
-
     arbol = g.parts_of_speech(noticia)
     entidades = g.find_entities(arbol)
     a = g.Analyse(entidades)
@@ -179,13 +189,10 @@ class TestMetodosPrincipales(unittest.TestCase):
 
 ''' ------------------------------ Metodo 2 ------------------------------
 tokenized = tokenizer.tokenize(noticia) 
-
 for token in tokenized:
     palabras = nltk.word_tokenize(token)
     tagged = nltk.pos_tag(palabras)
-
     ne = nltk.ne_chunk(tagged, binary = True)
-
     ne.draw()
     #print (tagged)
     #print(parentTree.read_node())
