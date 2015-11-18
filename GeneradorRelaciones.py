@@ -113,12 +113,12 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         noticias = []
         doc1 = db.EmolModule.find({ "analyzed": { "$exists": False }})
         for document in doc1:
-        	db.EmolModule.update({"id":document['id']}, {"$set":{"analyzed":""}})		#OJO CON ID
-        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+            db.EmolModule.update({"id":document['id']}, {"$set":{"analyzed":""}})       #OJO CON ID
+            noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         doc2 = db.LaTerceraModule.find({ "analyzed": { "$exists": False }})
         for document in doc2:
-        	db.LaTerceraModule.update({"id":document['id']}, {"$set":{"analyzed":""}})	#OJO CON ID
-        	noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
+            db.LaTerceraModule.update({"id":document['id']}, {"$set":{"analyzed":""}})  #OJO CON ID
+            noticias.append(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore"))
         #print(noticias)
 
         #LA LUPA
@@ -142,22 +142,22 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         for candidato1 in candidatos:
             for candidato2 in candidatos:
                 if candidato1 != candidato2:
-                    tupla = cur.execute(""" SELECT * FROM relaciones_candidatos WHERE "nombre" = '%s' AND "relacionado" = '%s';""" %(candidato1, candidato2))
-                    if tupla is not None:
-                   	 conteo = tupla[0].cantidad + 1
-                   	 cur.execute(""" UPDATE relaciones_candidatos SET '%s' WHERE "nombre" = '%s' AND "relacionado" = '%s';""" %(conteo, candidato1, candidato2))
-                   	else:
-                   	 cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s', 1);""" %(candidato1, candidato2))
+                    cur.execute(""" SELECT * FROM relaciones_candidatos WHERE "nombre" LIKE '%s' AND "relacionado" LIKE '%s';""" %(candidato1, candidato2))
+                    tupla = cur.fetchall()
+                    if tupla:
+                        cur.execute(""" UPDATE relaciones_candidatos SET cantidad = cantidad + 1 WHERE "nombre" LIKE '%s' AND "relacionado" LIKE '%s';""" %(candidato1, candidato2))
+                    else:               
+                        cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s', 1);""" %(candidato1, candidato2))
 
         #Relacionar cada candidato con las entidades
         for candidato in candidatos:
             for entidad in entidades:
-                tupla = cur.execute(""" SELECT * FROM candidatos_entidades WHERE "nombre" = '%s' AND "entidad" = '%s';""" %(candidato, entidad))
-                if tupla is not None:
-                	conteo = tupla[0].cantidad + 1
-                	cur.execute(""" UPDATE candidatos_entidades SET '%s' WHERE "nombre" = '%s' AND "entidad" = '%s';""" %(conteo, candidato, entidad))
+                cur.execute(""" SELECT * FROM candidatos_entidades WHERE "nombre" LIKE '%s' AND "entidad" LIKE '%s';""" %(candidato, entidad))
+                tupla = cur.fetchall()
+                if tupla:
+                    cur.execute(""" UPDATE candidatos_entidades SET cantidad = cantidad + 1 WHERE "nombre" LIKE '%s' AND "entidad" LIKE '%s';""" %(candidato, entidad))
                 else:
-                	cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s', 1);""" %(candidato, entidad))
+                    cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s', 1);""" %(candidato, entidad))
         conn.commit()
         return 0
 
