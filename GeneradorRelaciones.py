@@ -20,6 +20,7 @@ pos_db = 'scrapper'
 pos_user = 'scrapper'
 pos_pass = 'scrapper'
 
+
 try:
     conn = psycopg2.connect(database=pos_db, user=pos_user, password=pos_pass, host=pos_host, port=pos_port)
     cur = conn.cursor()
@@ -53,6 +54,10 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
             if enti in candidatos:
                 candidatosEncontrados.append(enti)
                 entidades.remove(enti)
+        #Quitar repetidos
+        candidatosEncontrados = sorted(set(candidatosEncontrados))
+        entidades = sorted(set(entidades))
+
         return [candidatosEncontrados, entidades]
 
     def quitarAcentos(self, s):
@@ -141,6 +146,10 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         for candidato1 in candidatos:
             for candidato2 in candidatos:
                 if candidato1 != candidato2:
+                    #pasar a minusculas
+                    candidato1 = candidato1.lower()
+                    candidato2 = candidato2.lower()
+
                     cur.execute(""" SELECT * FROM relaciones_candidatos WHERE "nombre" LIKE '%s' AND "relacionado" LIKE '%s';""" %(candidato1, candidato2))
                     tupla = cur.fetchall()
                     if tupla:
@@ -151,6 +160,10 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         #Relacionar cada candidato con las entidades
         for candidato in candidatos:
             for entidad in entidades:
+                #pasar a minusculas
+                candidato = candidato.lower()
+                entidad = entidad.lower()
+
                 cur.execute(""" SELECT * FROM candidatos_entidades WHERE "nombre" LIKE '%s' AND "entidad" LIKE '%s';""" %(candidato, entidad))
                 tupla = cur.fetchall()
                 if tupla:
@@ -171,7 +184,7 @@ for noticia in noticias:
     g.saveDB(a[0], a[1])
 '''
 
-# ------------------------------- TESTS UNITARIOS -----------------------------
+# ------------------------------- TESTS UNITARIOS ----------------------------- 
 class TestMetodosPrincipales(unittest.TestCase):
     def test_quitarAcentos(self):
         self.assertEqual(g.quitarAcentos('áéíóúñ'),'aeioun')
