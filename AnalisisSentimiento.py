@@ -24,7 +24,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
     pos_user = 'scrapper'
     pos_pass = 'scrapper'
 
-    def update_tops(self, cur, tags, tags_count):
+    def update_tops(self, cur, tags, tags_count, tweet):
         #Supuesto: en esta tabla siempre se mantienen, a lo más, 3 tweets por emocion, por candidato.
         #tops3s guarda una lista de listas de tuplas (idtweet, tagcount)
         top3s = []
@@ -40,7 +40,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Aqui se guarda el tweet en los top3, si corresponde
         for i in range(0,5):
             if mins[i][1] < tags_count[i]:
-                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i], autor, link])
+                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i], autor, link, tweet])
                 #La llave de esta tabla deberia ser id_tweet y emocion
                 cur.execute("DELETE FROM tops WHERE idtweet = %s AND emocion = %s;", [mins[i][0], tags[i]])
 
@@ -90,7 +90,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #TODO: ver negacion
 
         #Tablas que hay que tener en Postgres:
-        #   (1) Top3 tweets por candidato, por emocion (1 tabla en total, con campo id_tweet (debe ser bigint!!), idCandidato, emocion y tagCount)
+        #   (1) Top3 tweets por candidato, por emocion (1 tabla en total, con campo id_tweet (debe ser bigint!!), idCandidato, emocion, tagCount, autor, link, tweet)
         #   (2) Count de tweets analizados por candidato(1 tabla en total, con campos idCandidato y count)
         #   (3) Promedio de tagCount por emocion, por candidato (1 tabla en total, con campos idCandidato, emocion y promedio (debiese ser double))
 
@@ -109,7 +109,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         tags_count = self.count_tags(tokens, tags)
 
         #Modificar, si es necesario, la base de datos.
-        self.update_tops(cur, tags, tags_count)
+        self.update_tops(cur, tags, tags_count, str)
         self.update_proms(cur, tags, tags_count)
 
         #Commitear los cambios y cerrar conexión
@@ -144,7 +144,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         doc = db[self.mon_coll].find_one({ "analyzed": { "$exists": False }})
         if doc is not None:
             self.id_tweet = doc['id']
-            self.candidato = doc['candidato']
+            self.candidato = doc['candidato'].lower()
             self.autor = doc['autor']
             self.link = doc['link']
             return doc['tweet'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")
