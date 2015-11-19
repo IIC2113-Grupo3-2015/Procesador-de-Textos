@@ -127,7 +127,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
 
         #LA LUPA
         doc3 = db.LaLupaModule.find({"analyzed": {"$exists": False}})
-        for document in doc2:
+        for document in doc3:
             db.LaLupaModule.update({"id":document['id']}, {"$set":{"analyzed":""}})
             #Guardar PSQL
             cur.execute(""" INSERT INTO La_Lupa VALUES ('%s');""" %(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")))
