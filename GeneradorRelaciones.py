@@ -131,7 +131,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
             db.LaLupaModule.update({"id":document['id']}, {"$set":{"analyzed":""}})
             #Guardar PSQL
             cur.execute(""" INSERT INTO La_Lupa VALUES ('%s');""" %(document['data'].encode("latin_1", errors="ignore").decode("latin_1", errors="ignore")))
-            conn.connect()
+            conn.commit()
         return noticias
 
     def saveDB(self, candidatos, entidades):
