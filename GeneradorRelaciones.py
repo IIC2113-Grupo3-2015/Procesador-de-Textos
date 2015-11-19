@@ -51,7 +51,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         # Primero relacionar entre candidatos
         candidatosEncontrados = []
         for enti in entidades:
-            print("candidato encontrado: "enti)
+            print("candidato encontrado: " + enti)
             if enti in candidatos:
                 print(enti)
                 candidatosEncontrados.append(enti)
