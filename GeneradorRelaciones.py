@@ -94,6 +94,7 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         
         for chunk in chunks:
             #chunk.draw()
+            print (chunk)
             entities = sorted(list(set([word for tree in chunk
                                 for word in traverse(tree)])))
             for e in entities:
