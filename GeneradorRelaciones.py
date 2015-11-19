@@ -58,8 +58,6 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
         candidatosEncontrados = sorted(set(candidatosEncontrados))
         entidades = sorted(set(entidades))
 
-        print(candidatosEncontrados)
-
         return [candidatosEncontrados, entidades]
 
     def quitarAcentos(self, s):
@@ -157,10 +155,8 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
                     cur.execute(""" SELECT * FROM relaciones_candidatos WHERE nombre LIKE '%s' AND relacionado LIKE '%s';""" %(candidato1, candidato2))
                     tupla = cur.fetchall()
                     if tupla:
-                        print("guardado: relaciones_candidatos")
                         cur.execute(""" UPDATE relaciones_candidatos SET cantidad = cantidad + 1 WHERE nombre LIKE '%s' AND relacionado LIKE '%s';""" %(candidato1, candidato2))
                     else:
-                        print("primera tupla: relaciones_candidatos")
                         cur.execute(""" INSERT INTO relaciones_candidatos VALUES ('%s', '%s', 1);""" %(candidato1, candidato2))
 
         #Relacionar cada candidato con las entidades
@@ -173,10 +169,8 @@ class GeneradorRelaciones(ProcesadorTexto.ProcesadorTexto):
                 cur.execute(""" SELECT * FROM candidatos_entidades WHERE nombre LIKE '%s' AND entidad LIKE '%s';""" %(candidato, entidad))
                 tupla = cur.fetchall()
                 if tupla:
-                    print("guardado: candidatos_entidades")
                     cur.execute(""" UPDATE candidatos_entidades SET cantidad = cantidad + 1 WHERE nombre LIKE '%s' AND entidad LIKE '%s';""" %(candidato, entidad))
                 else:
-                    print("primera tupla: candidatos_entidades")
                     cur.execute(""" INSERT INTO candidatos_entidades VALUES ('%s', '%s', 1);""" %(candidato, entidad))
         conn.commit()
         return 0
