@@ -40,7 +40,7 @@ class AnalisisSentimiento(ProcesadorTexto.ProcesadorTexto):
         #Aqui se guarda el tweet en los top3, si corresponde
         for i in range(0,5):
             if mins[i][1] < tags_count[i]:
-                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i], autor, link, tweet])
+                cur.execute("INSERT INTO tops VALUES (%s, %s, %s, %s, %s, %s);", [self.id_tweet, self.candidato, tags[i], tags_count[i], self.autor, self.link, tweet])
                 #La llave de esta tabla deberia ser id_tweet y emocion
                 cur.execute("DELETE FROM tops WHERE idtweet = %s AND emocion = %s;", [mins[i][0], tags[i]])
 
